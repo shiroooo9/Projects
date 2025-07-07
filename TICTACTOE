@@ -1,0 +1,89 @@
+import customtkinter as ctk
+from tkinter import messagebox
+
+class TicTacToe(ctk.CTk):
+    def __init__(self):
+        super().__init__()
+        self.title("Tic Tac Toe")
+        self.geometry("500x550")
+        self.resizable(False, False)
+
+        # Game variables
+        self.current_player = "X"
+        self.board = [["" for _ in range(3)] for _ in range(3)]
+
+        # Title Label
+        self.title_label = ctk.CTkLabel(self, text="Tic Tac Toe", font=("Arial", 20, "bold"))
+        self.title_label.pack(pady=10)
+
+        # Menu Button
+        self.reset_button = ctk.CTkButton(self, text="Reset", command=self.reset_game)
+        self.reset_button.pack(pady=10)
+
+        # Frame for grid
+        self.grid_frame = ctk.CTkFrame(self)
+        self.grid_frame.pack(pady=10)
+
+        # Create grid buttons
+        self.buttons = [[None for _ in range(3)] for _ in range(3)]
+        for row in range(3):
+            for col in range(3):
+                button = ctk.CTkButton(self.grid_frame, text="", width=100, height=100,
+                                       font=("Arial", 24), command=lambda r=row, c=col: self.on_button_click(r, c))
+                button.grid(row=row, column=col, padx=5, pady=5)
+                self.buttons[row][col] = button
+
+        self.exit_button = ctk.CTkButton(self, text="Exit To Menu", command=self.exit_game)
+        self.exit_button.pack(pady=(60,5), padx=(20,350))
+
+    def on_button_click(self, row, col):
+        if self.board[row][col] == "":  # Check if the cell is empty
+            self.board[row][col] = self.current_player
+            self.buttons[row][col].configure(text=self.current_player)
+            if self.check_winner():
+                messagebox.showinfo("Game Over", f"Player {self.current_player} wins!")
+                self.disable_buttons()
+            elif self.is_draw():
+                messagebox.showinfo("Game Over", "It's a draw!")
+            else:
+                self.current_player = "O" if self.current_player == "X" else "X"
+
+    def check_winner(self):
+        # Check rows, columns, and diagonals
+        for i in range(3):
+            if all(self.board[i][j] == self.current_player for j in range(3)):  # Row
+                return True
+            if all(self.board[j][i] == self.current_player for j in range(3)):  # Column
+                return True
+        if all(self.board[i][i] == self.current_player for i in range(3)):  # Diagonal
+            return True
+        if all(self.board[i][2-i] == self.current_player for i in range(3)):  # Anti-diagonal
+            return True
+        return False
+
+    def is_draw(self):
+        return all(self.board[row][col] != "" for row in range(3) for col in range(3))
+
+    def disable_buttons(self):
+        for row in range(3):
+            for col in range(3):
+                self.buttons[row][col].configure(state="disabled")
+
+    def reset_game(self):
+        self.current_player = "X"
+        self.board = [["" for _ in range(3)] for _ in range(3)]
+        for row in range(3):
+            for col in range(3):
+                self.buttons[row][col].configure(text="", state="normal")
+
+    def exit_game(self):
+        self.destroy()  # Close the current menu window (optional)
+        from MainMenu import MainMenu
+        app = MainMenu()
+        app.mainloop()
+
+if __name__ == "__main__":
+    ctk.set_appearance_mode("System")  # Modes: "System", "Dark", "Light"
+    ctk.set_default_color_theme("blue")  # Themes: "blue", "green", "dark-blue"
+    app = TicTacToe()
+    app.mainloop()
