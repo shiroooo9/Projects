@@ -1,1 +1,1 @@
-Towers of hanoi game using pygame and customtkinter with main menu integration
+Towers of hanoi and tictactoe game using pygame and customtkinter with main menu integration
